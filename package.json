@@ -1,0 +1,41 @@
+{
+  "name": "ubid",
+  "version": "0.0.1",
+  "description": "A browser identification library.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/honeinc/ubid.git"
+  },
+  "main": "./index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ubid",
+    "fingerprint",
+    "unique id",
+    "unique",
+    "id"
+  ],
+  "company": "Hone Inc (http://gohone.com)",
+  "author": {
+    "name": "Andy Burke",
+    "email": "aburke@bitflood.org",
+    "url": "http://github.com/andyburke"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "browserify": "^6.1.0",
+    "gulp": "^3.8.8",
+    "gulp-size": "^1.1.0",
+    "gulp-sourcemaps": "^1.2.4",
+    "gulp-uglify": "^1.0.1",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.0.0"
+  },
+  "dependencies": {
+    "async": "^0.9.0",
+    "localforage": "^1.1.1",
+    "uuid": "^2.0.1"
+  }
+}
