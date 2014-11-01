@@ -2,65 +2,73 @@
 
 var async = require( 'async' );
 var uuid = require( 'uuid' );
-var localforage = require( 'localforage' );
 
 module.exports = {};
 
 var STORAGE_KEY = 'ubid:signaturedata';
 
-module.exports.get = function( callback ) {
-    var storedIDChecked = false;
-    
-    function onFound( signatureJSON ) {
-        if ( storedIDChecked ) {
-            return;
-        }
-        
-        storedIDChecked = true;
-        
-        function handleSignatureData( error, signatureData ) {
+module.exports.get = function( callback, storageLayer ) {
 
-            if ( !error ) {
-                localforage.setItem( STORAGE_KEY, JSON.stringify( signatureData ) );
+    var ids = null;
+    var storageSupported = false;
+    
+    async.series( [
+        // check for the item in storage
+        function( next ) {
+            if ( !storageLayer || !storageLayer.getItem ) {
+                next();
+                return;
             }
             
-            if ( signatureData ) {
-                signatureData.localStorage = true;
+            storageLayer.getItem( STORAGE_KEY, function( error, jsonIDs ) {
+                if ( error ) {
+                    next( error );
+                    return;
+                }
+
+                try {
+                    ids = JSON.parse( jsonIDs );
+                }
+                catch( ex ) {
+                    ids = null;
+                }                
+                
+                storageSupported = true;
+                next();
+            } );
+        },
+        
+        // generate ids if they were not read out of storage
+        function( next ) {
+            if ( ids ) {
+                next();
+                return;
             }
-
-            callback( error, signatureData );
+            
+            getSignatureData( function( error, _ids ) {
+                ids = _ids;
+                next( error );
+            } );
+        },
+        
+        // store ids into storage
+        function( next ) {
+            if ( !storageSupported ) {
+                next();
+                return;
+            }
+            
+            storageLayer.setItem( STORAGE_KEY, JSON.stringify( ids ), next );
         }
         
-        if ( !signatureJSON ) {
-            getSignatureData( handleSignatureData );
-            return;
+    ], function( error ) {
+
+        if ( ids ) {
+            ids.storageSupported = storageSupported;
         }
         
-        try {
-            var signatureData = JSON.parse( signatureJSON );
-            signatureData.localStorage = true;
-            callback( null, signatureData );
-        }
-        catch( ex ) {
-            getSignatureData( handleSignatureData );
-        }
-    }
-
-    function onError() {
-        if ( storedIDChecked ) {
-            return;
-        }
-        
-        storedIDChecked = true;
-        getSignatureData( callback );
-    }
-    
-    localforage.getItem( STORAGE_KEY )
-        .then( onFound, onError )
-        .catch( onError );
-
-    // WORKAROUND FOR LOCALFORAGE BUG: when local storage is disabled, we get no callbacks, so handle it ourselves after 300ms
-    setTimeout( onError, 300 );    
+        callback( error, ids );
+    } );
 };
 
 function getSignatureData( callback ) {
