@@ -134,22 +134,27 @@ function getCanvasSignature( signatureData, callback ) {
         callback();
         return;
     }
-
-    ctx.font = CANVAS_FONT_SIZE + 'px \'' + CANVAS_FONT_FACE + '\'';
-    ctx.textBaseline = 'middle';
-    ctx.textAlign = 'center';
-
-    ctx.fillStyle = "#f60";
-    ctx.fillRect( ( ( 3 * width ) / 8 ), 0, width / 4, height );
-
-    ctx.fillStyle = "#069";
-    ctx.fillText( CANVAS_TEXT, width / 2, height / 2 );
-    ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
-    ctx.fillText( CANVAS_TEXT, ( width / 2 ) + 2, ( height / 2 ) + 2 );
-
-    var base64png = canvas.toDataURL( 'image/png' );
-    signatureData.canvas.signature = SHA256( base64png );
-    callback();
+    
+    try { 
+        ctx.font = CANVAS_FONT_SIZE + 'px \'' + CANVAS_FONT_FACE + '\'';
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+    
+        ctx.fillStyle = "#f60";
+        ctx.fillRect( ( ( 3 * width ) / 8 ), 0, width / 4, height );
+    
+        ctx.fillStyle = "#069";
+        ctx.fillText( CANVAS_TEXT, width / 2, height / 2 );
+        ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
+        ctx.fillText( CANVAS_TEXT, ( width / 2 ) + 2, ( height / 2 ) + 2 );
+    
+        var base64png = canvas.toDataURL( 'image/png' );
+        signatureData.canvas.signature = SHA256( base64png );
+        callback();
+    } catch (ex) {
+        callback();
+        return;
+    }
 }
 
 
