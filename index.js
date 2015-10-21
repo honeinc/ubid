@@ -20,22 +20,17 @@ module.exports.get = function( callback, storageLayer ) {
                 return;
             }
             
-            storageLayer.getItem( STORAGE_KEY, function( error, jsonIDs ) {
-                if ( error ) {
-                    next( error );
-                    return;
-                }
+            var jsonIDs = storageLayer.getItem( STORAGE_KEY );
 
-                try {
-                    ids = JSON.parse( jsonIDs );
-                }
-                catch( ex ) {
-                    ids = null;
-                }                
-                
-                storageSupported = true;
-                next();
-            } );
+            try {
+                ids = JSON.parse( jsonIDs );
+            }
+            catch( ex ) {
+                ids = null;
+            }                
+            
+            storageSupported = true;
+            next();
         },
         
         // generate ids if they were not read out of storage
@@ -58,7 +53,9 @@ module.exports.get = function( callback, storageLayer ) {
                 return;
             }
             
-            storageLayer.setItem( STORAGE_KEY, JSON.stringify( ids ), next );
+            storageLayer.setItem( STORAGE_KEY, JSON.stringify( ids ) );
+            
+            next();
         }
         
     ], function( error ) {
